@@ -8,9 +8,9 @@ import numpy as np
 from . import backend_show
 from ...kdeplot import plot_kde
 from ...plot_utils import (
-    make_label,
     _create_axes_grid,
 )
+from ....sel_utils import make_label
 from ....numeric_utils import _fast_kde, histogram, get_bins
 
 _log = logging.getLogger(__name__)

@@ -4,7 +4,8 @@ import numpy as np
 
 from . import backend_show
 from ....stats import autocorr
-from ...plot_utils import _create_axes_grid, make_label
+from ...plot_utils import _create_axes_grid
+from ....sel_utils import make_label
 
 
 def plot_autocorr(

@@ -7,7 +7,7 @@ from . import backend_kwarg_defaults
 from .. import show_layout
 from ...distplot import plot_dist
 from ...kdeplot import plot_kde
-from ...plot_utils import make_label
+from ....sel_utils import make_label
 
 
 def plot_joint(

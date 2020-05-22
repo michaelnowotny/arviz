@@ -5,7 +5,7 @@ import numpy as np
 from . import backend_kwarg_defaults, backend_show
 from ...distplot import plot_dist
 from ...kdeplot import plot_kde
-from ...plot_utils import make_label
+from ....sel_utils import make_label
 
 
 def plot_joint(

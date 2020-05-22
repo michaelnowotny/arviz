@@ -4,7 +4,8 @@ from typing import Optional, Union, List
 import numpy as np
 
 from ..data import convert_to_dataset, convert_to_inference_data
-from .plot_utils import xarray_to_ndarray, get_plotting_function
+from ..sel_utils import xarray_to_ndarray
+from .plot_utils import get_plotting_function
 from ..rcparams import rcParams
 from ..utils import _var_names, get_coords
 

@@ -2,8 +2,8 @@
 from typing import Optional
 
 from ..data import convert_to_dataset
+from ..sel_utils import xarray_var_iter
 from .plot_utils import (
-    xarray_var_iter,
     _scale_fig_size,
     default_grid,
     filter_plotters_list,

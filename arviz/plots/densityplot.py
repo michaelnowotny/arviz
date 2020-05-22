@@ -5,10 +5,12 @@ import warnings
 import matplotlib.pyplot as plt
 
 from ..data import convert_to_dataset
-from .plot_utils import (
-    _scale_fig_size,
+from ..sel_utils import (
     make_label,
     xarray_var_iter,
+)
+from .plot_utils import (
+    _scale_fig_size,
     default_grid,
     get_plotting_function,
 )

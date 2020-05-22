@@ -5,7 +5,8 @@ import numpy as np
 from . import backend_show
 from ....stats import hdi
 from ....numeric_utils import _fast_kde, histogram, get_bins
-from ...plot_utils import make_label, _create_axes_grid
+from ...plot_utils import _create_axes_grid
+from ....sel_utils import make_label
 
 
 def plot_violin(

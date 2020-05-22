@@ -8,9 +8,9 @@ from scipy.stats import rankdata
 from . import backend_kwarg_defaults
 from .. import show_layout
 from ...plot_utils import (
-    make_label,
     _create_axes_grid,
 )
+from ....sel_utils import make_label
 
 
 def plot_ess(

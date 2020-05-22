@@ -2,9 +2,9 @@
 import warnings
 
 from ..data import convert_to_dataset
+from ..sel_utils import xarray_var_iter
 from .plot_utils import (
     _scale_fig_size,
-    xarray_var_iter,
     get_plotting_function,
     matplotlib_kwarg_dealiaser,
 )

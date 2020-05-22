@@ -13,10 +13,10 @@ from ...plots.plot_utils import (
     get_plotting_function,
     make_2d,
     matplotlib_kwarg_dealiaser,
-    xarray_to_ndarray,
-    xarray_var_iter,
     vectorized_to_hex,
 )
+from ...sel_utils import xarray_var_iter, xarray_to_ndarray
+
 from ...rcparams import rc_context
 from ...numeric_utils import get_bins
 from ...utils import get_coords

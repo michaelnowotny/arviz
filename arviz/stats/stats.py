@@ -2,7 +2,6 @@
 """Statistical functions in ArviZ."""
 import warnings
 import logging
-from collections import OrderedDict
 from copy import deepcopy
 from typing import Optional, List, Union
 
@@ -23,6 +22,7 @@ from .stats_utils import (
     _circular_standard_deviation,
     get_log_likelihood as _get_log_likelihood,
 )
+from ..sel_utils import make_label, xarray_var_iter
 from ..numeric_utils import _fast_kde, histogram, get_bins
 from ..utils import _var_names, Numba, _numba_var, get_coords, credible_interval_warning
 from ..rcparams import rcParams
@@ -1270,28 +1270,16 @@ def summary(
     joined = (
         xr.concat(metrics, dim="metric").assign_coords(metric=metric_names).reset_coords(drop=True)
     )
+    n_metrics = len(metric_names)
+    n_vars = np.sum([joined[var].size // n_metrics for var in joined.data_vars])
 
     if fmt.lower() == "wide":
-        dfs = []
-        for var_name, values in joined.data_vars.items():
-            if len(values.shape[1:]):
-                metric = list(values.metric.values)
-                data_dict = OrderedDict()
-                for idx in np.ndindex(values.shape[1:] if order == "C" else values.shape[1:][::-1]):
-                    if order == "F":
-                        idx = tuple(idx[::-1])
-                    ser = pd.Series(values[(Ellipsis, *idx)].values, index=metric)
-                    key_index = ",".join(map(str, (i + index_origin for i in idx)))
-                    key = "{}[{}]".format(var_name, key_index)
-                    data_dict[key] = ser
-                df = pd.DataFrame.from_dict(data_dict, orient="index")
-                df = df.loc[list(data_dict.keys())]
-            else:
-                df = values.to_dataframe()
-                df.index = list(df.index)
-                df = df.T
-            dfs.append(df)
-        summary_df = pd.concat(dfs, sort=False)
+        summary_df = pd.DataFrame(np.full((n_vars, n_metrics), np.nan), columns=metric_names)
+        indexs = []
+        for i, (var_name, sel, values) in enumerate(xarray_var_iter(joined, skip_dims={"metric"})):
+            summary_df.iloc[i] = values
+            indexs.append(make_label(var_name, sel, position="beside"))
+        summary_df.index = indexs
     elif fmt.lower() == "long":
         df = joined.to_dataframe().reset_index().set_index("metric")
         df.index = list(df.index)

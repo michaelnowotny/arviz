@@ -12,7 +12,8 @@ import numpy as np
 
 from . import backend_kwarg_defaults
 from .. import show_layout
-from ...plot_utils import _scale_fig_size, xarray_var_iter, make_label
+from ...plot_utils import _scale_fig_size
+from ....sel_utils import make_label, xarray_var_iter
 from ....rcparams import rcParams
 from ....stats import hdi
 from ....stats.diagnostics import _ess, _rhat

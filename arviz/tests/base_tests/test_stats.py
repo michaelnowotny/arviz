@@ -290,7 +290,7 @@ def test_summary_skip_nan(centered_eight):
     centered_eight = deepcopy(centered_eight)
     centered_eight.posterior.theta[:, :10, 1] = np.nan
     summary_xarray = summary(centered_eight)
-    theta_1 = summary_xarray.loc["theta[1]"].isnull()
+    theta_1 = summary_xarray.loc["theta[Deerfield]"].isnull()
     assert summary_xarray is not None
     assert ~theta_1[:4].all()
     assert theta_1[4:].all()

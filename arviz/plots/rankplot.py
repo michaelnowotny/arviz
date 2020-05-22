@@ -3,9 +3,9 @@ from itertools import cycle
 import matplotlib.pyplot as plt
 
 from ..data import convert_to_dataset
+from ..sel_utils import xarray_var_iter
 from .plot_utils import (
     _scale_fig_size,
-    xarray_var_iter,
     default_grid,
     filter_plotters_list,
     get_plotting_function,

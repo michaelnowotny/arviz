@@ -7,10 +7,10 @@ import numpy as np
 from . import backend_kwarg_defaults
 from .. import show_layout
 from ...plot_utils import (
-    make_label,
     _create_axes_grid,
     calculate_point_estimate,
 )
+from ....sel_utils import make_label
 from ....stats import hdi
 from ....numeric_utils import _fast_kde, histogram, get_bins
 

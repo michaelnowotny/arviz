@@ -5,10 +5,10 @@ from scipy.stats import rankdata
 
 from . import backend_show
 from ...plot_utils import (
-    make_label,
     _create_axes_grid,
     matplotlib_kwarg_dealiaser,
 )
+from ....sel_utils import make_label
 
 
 def plot_ess(

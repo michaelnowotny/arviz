@@ -4,8 +4,8 @@ import platform
 import logging
 import numpy as np
 
+from ..sel_utils import xarray_var_iter
 from .plot_utils import (
-    xarray_var_iter,
     _scale_fig_size,
     default_grid,
     filter_plotters_list,

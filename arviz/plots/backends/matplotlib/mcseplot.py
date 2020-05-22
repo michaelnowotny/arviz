@@ -5,8 +5,8 @@ from scipy.stats import rankdata
 
 from . import backend_show
 from ....stats.stats_utils import quantile as _quantile
+from ....sel_utils import make_label
 from ...plot_utils import (
-    make_label,
     _create_axes_grid,
     matplotlib_kwarg_dealiaser,
 )

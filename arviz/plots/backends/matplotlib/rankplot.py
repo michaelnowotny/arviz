@@ -6,8 +6,8 @@ import scipy.stats
 from . import backend_show
 from ...plot_utils import (
     _create_axes_grid,
-    make_label,
 )
+from ....sel_utils import make_label
 from ....stats.stats_utils import histogram
 
 

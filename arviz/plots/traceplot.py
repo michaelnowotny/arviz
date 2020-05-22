@@ -5,9 +5,9 @@ from typing import Callable, List, Optional, Tuple, Any
 
 import matplotlib.pyplot as plt
 
+from ..sel_utils import xarray_var_iter
 from .plot_utils import (
     get_plotting_function,
-    xarray_var_iter,
     KwargSpec,
     matplotlib_kwarg_dealiaser,
 )

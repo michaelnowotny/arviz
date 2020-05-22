@@ -12,7 +12,8 @@ from . import backend_kwarg_defaults
 from .. import show_layout
 from ...distplot import plot_dist
 from ...rankplot import plot_rank
-from ...plot_utils import xarray_var_iter, make_label, _scale_fig_size
+from ...plot_utils import _scale_fig_size
+from ....sel_utils import xarray_var_iter, make_label
 from ....rcparams import rcParams
 
 

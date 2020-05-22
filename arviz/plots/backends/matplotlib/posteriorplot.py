@@ -8,12 +8,12 @@ from . import backend_show
 from ....stats import hdi
 from ...kdeplot import plot_kde
 from ...plot_utils import (
-    make_label,
     _create_axes_grid,
     format_sig_figs,
     round_num,
     calculate_point_estimate,
 )
+from ....sel_utils import make_label
 from ....numeric_utils import get_bins
 
 

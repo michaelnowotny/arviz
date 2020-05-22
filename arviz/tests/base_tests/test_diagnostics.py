@@ -8,7 +8,7 @@ import pytest
 from numpy.testing import assert_almost_equal, assert_array_almost_equal
 
 from ...data import from_cmdstan, load_arviz_data
-from ...plots.plot_utils import xarray_var_iter
+from ...sel_utils import xarray_var_iter
 from ...rcparams import rcParams
 from ...stats import bfmi, ess, geweke, mcse, rhat
 from ...stats.diagnostics import (
