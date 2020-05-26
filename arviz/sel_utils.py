@@ -4,6 +4,7 @@ from itertools import product, tee
 import numpy as np
 import xarray as xr
 
+
 def selection_to_string(selection):
     """Convert dictionary of coordinates to a string for labels.
 
@@ -41,12 +42,14 @@ def make_label(var_name, selection, position="below"):
     if selection:
         sel = selection_to_string(selection)
         if position == "below":
-            sep = "\n"
+            base = "{}\n{}"
         elif position == "beside":
-            sep = " "
+            base = "{}[{}]"
     else:
-        sep = sel = ""
-    return "{}{}{}".format(var_name, sep, sel)
+        sel = ""
+        base = "{}{}"
+    return base.format(var_name, sel)
+
 
 def purge_duplicates(list_in):
     """Remove duplicates from list while preserving order.
