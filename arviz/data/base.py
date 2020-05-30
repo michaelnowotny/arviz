@@ -166,7 +166,7 @@ def numpy_to_data_array(
             )
 
     dims, coords = generate_dims_coords(
-        ary.shape[len(default_dims):],
+        ary.shape[len(default_dims) :],
         var_name,
         dims=dims,
         coords=coords,

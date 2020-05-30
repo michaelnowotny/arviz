@@ -31,6 +31,7 @@ class CmdStanPyConverter:
         constant_data=None,
         predictions_constant_data=None,
         log_likelihood=None,
+        index_origin=None,
         coords=None,
         dims=None
     ):
@@ -43,6 +44,7 @@ class CmdStanPyConverter:
         self.constant_data = constant_data
         self.predictions_constant_data = predictions_constant_data
         self.log_likelihood = log_likelihood
+        self.index_origin = index_origin
         self.coords = coords
         self.dims = dims
 
@@ -98,7 +100,13 @@ class CmdStanPyConverter:
         )
         valid_cols = [col for col in columns if col not in invalid_cols]
         data = _unpack_frame(self.posterior.sample, columns, valid_cols)
-        return dict_to_dataset(data, library=self.cmdstanpy, coords=self.coords, dims=self.dims)
+        return dict_to_dataset(
+            data,
+            library=self.cmdstanpy,
+            coords=self.coords,
+            dims=self.dims,
+            index_origin=self.index_origin,
+        )
 
     @requires("posterior")
     def sample_stats_to_xarray(self):
@@ -114,7 +122,13 @@ class CmdStanPyConverter:
             name = re.sub("__$", "", s_param_)
             name = "diverging" if name == "divergent" else name
             data[name] = data.pop(s_param).astype(dtypes.get(s_param, float))
-        return dict_to_dataset(data, library=self.cmdstanpy, coords=self.coords, dims=self.dims)
+        return dict_to_dataset(
+            data,
+            library=self.cmdstanpy,
+            coords=self.coords,
+            dims=self.dims,
+            index_origin=self.index_origin,
+        )
 
     @requires("posterior")
     @requires("posterior_predictive")
@@ -127,7 +141,13 @@ class CmdStanPyConverter:
             posterior_predictive = [posterior_predictive]
         valid_cols = [col for col in columns if col.split(".")[0] in set(posterior_predictive)]
         data = _unpack_frame(self.posterior.sample, columns, valid_cols)
-        return dict_to_dataset(data, library=self.cmdstanpy, coords=self.coords, dims=self.dims)
+        return dict_to_dataset(
+            data,
+            library=self.cmdstanpy,
+            coords=self.coords,
+            dims=self.dims,
+            index_origin=self.index_origin,
+        )
 
     @requires("posterior")
     @requires("predictions")
@@ -140,7 +160,13 @@ class CmdStanPyConverter:
             predictions = [predictions]
         valid_cols = [col for col in columns if col.split(".")[0] in set(predictions)]
         data = _unpack_frame(self.posterior.sample, columns, valid_cols)
-        return dict_to_dataset(data, library=self.cmdstanpy, coords=self.coords, dims=self.dims)
+        return dict_to_dataset(
+            data,
+            library=self.cmdstanpy,
+            coords=self.coords,
+            dims=self.dims,
+            index_origin=self.index_origin,
+        )
 
     @requires("prior")
     def prior_to_xarray(self):
@@ -161,7 +187,13 @@ class CmdStanPyConverter:
 
         valid_cols = [col for col in columns if col not in set(prior_predictive)]
         data = _unpack_frame(self.prior.sample, columns, valid_cols)
-        return dict_to_dataset(data, library=self.cmdstanpy, coords=self.coords, dims=self.dims)
+        return dict_to_dataset(
+            data,
+            library=self.cmdstanpy,
+            coords=self.coords,
+            dims=self.dims,
+            index_origin=self.index_origin,
+        )
 
     @requires("prior")
     def sample_stats_prior_to_xarray(self):
@@ -180,7 +212,9 @@ class CmdStanPyConverter:
             name = re.sub("__$", "", s_param_)
             name = "diverging" if name == "divergent" else name
             data[name] = data.pop(s_param).astype(dtypes.get(s_param, float))
-        return dict_to_dataset(data, library=self.cmdstanpy, coords=coords, dims=dims)
+        return dict_to_dataset(
+            data, library=self.cmdstanpy, coords=coords, dims=dims, index_origin=self.index_origin
+        )
 
     @requires("prior")
     @requires("prior_predictive")
@@ -193,47 +227,57 @@ class CmdStanPyConverter:
             prior_predictive = [prior_predictive]
         valid_cols = [col for col in columns if col.split(".")[0] in set(prior_predictive)]
         data = _unpack_frame(self.prior.sample, columns, valid_cols)
-        return dict_to_dataset(data, library=self.cmdstanpy, coords=self.coords, dims=self.dims)
+        return dict_to_dataset(
+            data,
+            library=self.cmdstanpy,
+            coords=self.coords,
+            dims=self.dims,
+            index_origin=self.index_origin,
+        )
 
     @requires("observed_data")
     def observed_data_to_xarray(self):
         """Convert observed data to xarray."""
         observed_data = {}
         for key, vals in self.observed_data.items():
-            vals = utils.one_de(vals)
-            val_dims = self.dims.get(key) if self.dims is not None else None
-            val_dims, coords = generate_dims_coords(
-                vals.shape, key, dims=val_dims, coords=self.coords
-            )
-            observed_data[key] = xr.DataArray(vals, dims=val_dims, coords=coords)
-        return xr.Dataset(data_vars=observed_data, attrs=make_attrs(library=self.cmdstanpy))
+            observed_data[key] = utils.one_de(vals)
+        return dict_to_dataset(
+            observed_data,
+            library=self.cmdstanpy,
+            coords=self.coords,
+            dims=self.dims,
+            default_dims=[],
+            index_origin=self.index_origin,
+        )
 
     @requires("constant_data")
     def constant_data_to_xarray(self):
         """Convert constant data to xarray."""
         constant_data = {}
         for key, vals in self.constant_data.items():
-            vals = utils.one_de(vals)
-            val_dims = self.dims.get(key) if self.dims is not None else None
-            val_dims, coords = generate_dims_coords(
-                vals.shape, key, dims=val_dims, coords=self.coords
-            )
-            constant_data[key] = xr.DataArray(vals, dims=val_dims, coords=coords)
-        return xr.Dataset(data_vars=constant_data, attrs=make_attrs(library=self.cmdstanpy))
+            constant_data[key] = utils.one_de(vals)
+        return dict_to_dataset(
+            constant_data,
+            library=self.cmdstanpy,
+            coords=self.coords,
+            dims=self.dims,
+            default_dims=[],
+            index_origin=self.index_origin,
+        )
 
     @requires("predictions_constant_data")
     def predictions_constant_data_to_xarray(self):
         """Convert constant data to xarray."""
         predictions_constant_data = {}
         for key, vals in self.predictions_constant_data.items():
-            vals = utils.one_de(vals)
-            val_dims = self.dims.get(key) if self.dims is not None else None
-            val_dims, coords = generate_dims_coords(
-                vals.shape, key, dims=val_dims, coords=self.coords
-            )
-            predictions_constant_data[key] = xr.DataArray(vals, dims=val_dims, coords=coords)
-        return xr.Dataset(
-            data_vars=predictions_constant_data, attrs=make_attrs(library=self.cmdstanpy)
+            predictions_constant_data[key] = utils.one_de(vals)
+        return dict_to_dataset(
+            predictions_constant_data,
+            library=self.cmdstanpy,
+            coords=self.coords,
+            dims=self.dims,
+            default_dims=[],
+            index_origin=self.index_origin,
         )
 
     @requires("posterior")
@@ -247,7 +291,13 @@ class CmdStanPyConverter:
             log_likelihood = [log_likelihood]
         valid_cols = [col for col in columns if col.split(".")[0] in set(log_likelihood)]
         data = _unpack_frame(self.posterior.sample, columns, valid_cols)
-        return dict_to_dataset(data, library=self.cmdstanpy, coords=self.coords, dims=self.dims)
+        return dict_to_dataset(
+            data,
+            library=self.cmdstanpy,
+            coords=self.coords,
+            dims=self.dims,
+            index_origin=self.index_origin,
+        )
 
     def to_inference_data(self):
         """Convert all available data to an InferenceData object.
@@ -342,6 +392,7 @@ def from_cmdstanpy(
     constant_data=None,
     predictions_constant_data=None,
     log_likelihood=None,
+    index_origin=None,
     coords=None,
     dims=None
 ):
@@ -370,6 +421,9 @@ def from_cmdstanpy(
         Constant data for predictions used in the sampling.
     log_likelihood : str, list of str
         Pointwise log_likelihood for the data.
+    index_origin : int, optional
+        Starting value of integer coordinate values. Defaults to the value in rcParam
+        ``data.index_origin``.
     coords : dict of str or dict of iterable
         A dictionary containing the values that are used as index. The key
         is the name of the dimension, the values are the index values.
@@ -390,6 +444,7 @@ def from_cmdstanpy(
         constant_data=constant_data,
         predictions_constant_data=predictions_constant_data,
         log_likelihood=log_likelihood,
+        index_origin=index_origin,
         coords=coords,
         dims=dims,
     ).to_inference_data()
