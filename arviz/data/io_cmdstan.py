@@ -39,6 +39,7 @@ class CmdStanConverter:
         predictions_constant_data=None,
         predictions_constant_data_var=None,
         log_likelihood=None,
+        index_origin=None,
         coords=None,
         dims=None
     ):
@@ -119,6 +120,7 @@ class CmdStanConverter:
         self.sample_stats = None
         self.prior = None
         self.sample_stats_prior = None
+        self.index_origin = index_origin
 
         # populate posterior and sample_stats
         self._parse_posterior()
@@ -217,7 +219,7 @@ class CmdStanConverter:
         invalid_cols = posterior_predictive + predictions + log_likelihood
         valid_cols = [col for col in columns if col not in invalid_cols]
         data = _unpack_dataframes([item[valid_cols] for item in self.posterior])
-        return dict_to_dataset(data, coords=self.coords, dims=self.dims)
+        return dict_to_dataset(data, coords=self.coords, dims=self.dims, index_origin=self.index_origin)
 
     @requires("posterior")
     @requires("sample_stats")
@@ -237,7 +239,7 @@ class CmdStanConverter:
                 sampler_params[j][key] = s_params[key].astype(dtypes.get(key_))
             sampler_params[j] = sampler_params[j].rename(columns=rename_dict)
         data = _unpack_dataframes(sampler_params)
-        return dict_to_dataset(data, coords=self.coords, dims=self.dims)
+        return dict_to_dataset(data, coords=self.coords, dims=self.dims, index_origin=self.index_origin)
 
     @requires("posterior")
     @requires("posterior_predictive")
@@ -266,7 +268,7 @@ class CmdStanConverter:
                 if any(item == col.split(".")[0] for item in posterior_predictive)
             ]
             data = _unpack_dataframes([item[posterior_predictive_cols] for item in self.posterior])
-        return dict_to_dataset(data, coords=self.coords, dims=self.dims)
+        return dict_to_dataset(data, coords=self.coords, dims=self.dims, index_origin=self.index_origin)
 
     @requires("posterior")
     @requires("predictions")
@@ -292,7 +294,7 @@ class CmdStanConverter:
                 col for col in columns if any(item == col.split(".")[0] for item in predictions)
             ]
             data = _unpack_dataframes([item[predictions_cols] for item in self.posterior])
-        return dict_to_dataset(data, coords=self.coords, dims=self.dims)
+        return dict_to_dataset(data, coords=self.coords, dims=self.dims, index_origin=self.index_origin)
 
     @requires("prior")
     def prior_to_xarray(self):
@@ -316,7 +318,7 @@ class CmdStanConverter:
         invalid_cols = prior_predictive
         valid_cols = [col for col in columns if col not in invalid_cols]
         data = _unpack_dataframes([item[valid_cols] for item in self.prior])
-        return dict_to_dataset(data, coords=self.coords, dims=self.dims)
+        return dict_to_dataset(data, coords=self.coords, dims=self.dims, index_origin=self.index_origin)
 
     @requires("prior")
     @requires("sample_stats_prior")
@@ -339,7 +341,7 @@ class CmdStanConverter:
                 sampler_params[j][key] = s_params[key].astype(dtypes.get(key_))
             sampler_params[j] = sampler_params[j].rename(columns=rename_dict)
         data = _unpack_dataframes(sampler_params)
-        return dict_to_dataset(data, coords=coords, dims=dims)
+        return dict_to_dataset(data, coords=coords, dims=dims, index_origin=self.index_origin)
 
     @requires("prior")
     @requires("prior_predictive")
@@ -367,7 +369,7 @@ class CmdStanConverter:
                 if any(item == col.split(".")[0] for item in prior_predictive)
             ]
             data = _unpack_dataframes([item[prior_predictive_cols] for item in self.prior])
-        return dict_to_dataset(data, coords=self.coords, dims=self.dims)
+        return dict_to_dataset(data, coords=self.coords, dims=self.dims, index_origin=self.index_origin)
 
     @requires("observed_data")
     def observed_data_to_xarray(self):
@@ -380,13 +382,8 @@ class CmdStanConverter:
         for key, vals in observed_data_raw.items():
             if variables is not None and key not in variables:
                 continue
-            vals = utils.one_de(vals)
-            val_dims = self.dims.get(key)
-            val_dims, coords = generate_dims_coords(
-                vals.shape, key, dims=val_dims, coords=self.coords
-            )
-            observed_data[key] = xr.DataArray(vals, dims=val_dims, coords=coords)
-        return xr.Dataset(data_vars=observed_data)
+            observed_data[key] = utils.one_de(vals)
+        return dict_to_dataset(observed_data, coords=self.coords, dims=self.dims, default_dims=[], index_origin=self.index_origin)
 
     @requires("constant_data")
     def constant_data_to_xarray(self):
@@ -399,13 +396,8 @@ class CmdStanConverter:
         for key, vals in constant_data_raw.items():
             if variables is not None and key not in variables:
                 continue
-            vals = utils.one_de(vals)
-            val_dims = self.dims.get(key)
-            val_dims, coords = generate_dims_coords(
-                vals.shape, key, dims=val_dims, coords=self.coords
-            )
-            constant_data[key] = xr.DataArray(vals, dims=val_dims, coords=coords)
-        return xr.Dataset(data_vars=constant_data)
+            constant_data[key] = utils.one_de(vals)
+        return dict_to_dataset(constant_data, coords=self.coords, dims=self.dims, default_dims=[], index_origin=self.index_origin)
 
     @requires("predictions_constant_data")
     def predictions_constant_data_to_xarray(self):
@@ -418,13 +410,8 @@ class CmdStanConverter:
         for key, vals in predictions_constant_data_raw.items():
             if variables is not None and key not in variables:
                 continue
-            vals = utils.one_de(vals)
-            val_dims = self.dims.get(key)
-            val_dims, coords = generate_dims_coords(
-                vals.shape, key, dims=val_dims, coords=self.coords
-            )
-            predictions_constant_data[key] = xr.DataArray(vals, dims=val_dims, coords=coords)
-        return xr.Dataset(data_vars=predictions_constant_data)
+            predictions_constant_data[key] = utils.one_de(vals)
+        return dict_to_dataset(predictions_constant_data, coords=self.coords, dims=self.dims, default_dims=[], index_origin=self.index_origin)
 
     @requires("posterior")
     @requires("log_likelihood")
@@ -450,7 +437,7 @@ class CmdStanConverter:
                 col for col in columns if any(item == col.split(".")[0] for item in log_likelihood)
             ]
             data = _unpack_dataframes([item[log_likelihood_cols] for item in self.posterior])
-        return dict_to_dataset(data, coords=self.coords, dims=self.dims)
+        return dict_to_dataset(data, coords=self.coords, dims=self.dims, index_origin=self.index_origin)
 
     def to_inference_data(self):
         """Convert all available data to an InferenceData object.
@@ -832,6 +819,9 @@ def from_cmdstan(
         If not defined, all data variables are imported.
     log_likelihood : str or list of str, optional
         Pointwise log_likelihood for the data.
+    index_origin : int, optional
+        Starting value of integer coordinate values. Defaults to the value in rcParam
+        ``data.index_origin``.
     coords : dict of {str: array_like}, optional
         A dictionary containing the values that are used as index. The key
         is the name of the dimension, the values are the index values.
@@ -855,6 +845,7 @@ def from_cmdstan(
         predictions_constant_data=predictions_constant_data,
         predictions_constant_data_var=predictions_constant_data_var,
         log_likelihood=log_likelihood,
+        index_origin=None,
         coords=coords,
         dims=dims,
     ).to_inference_data()

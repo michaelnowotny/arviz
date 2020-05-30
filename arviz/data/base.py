@@ -108,7 +108,7 @@ def generate_dims_coords(
                 dims[idx] = dim_name
         dim_name = dims[idx]
         if dim_name not in coords:
-            coords[dim_name] = utils.arange(dim_len) + rcParams["data.index_origin"]
+            coords[dim_name] = utils.arange(dim_len) + index_origin
     coords = {key: coord for key, coord in coords.items() if any(key == dim for dim in dims)}
     return dims, coords
 
@@ -153,19 +153,20 @@ def numpy_to_data_array(
     # manage and transform copies
     if default_dims is None:
         default_dims = ["chain", "draw"]
-    ary = utils.two_de(ary)
-    n_chains, n_samples, *shape = ary.shape
-    if n_chains > n_samples:
-        warnings.warn(
-            "More chains ({n_chains}) than draws ({n_samples}). "
-            "Passed array should have shape (chains, draws, *shape)".format(
-                n_chains=n_chains, n_samples=n_samples
-            ),
-            UserWarning,
-        )
+    if "chain" in default_dims and "draw" in default_dims:
+        ary = utils.two_de(ary)
+        n_chains, n_samples, *shape = ary.shape
+        if n_chains > n_samples:
+            warnings.warn(
+                "More chains ({n_chains}) than draws ({n_samples}). "
+                "Passed array should have shape (chains, draws, *shape)".format(
+                    n_chains=n_chains, n_samples=n_samples
+                ),
+                UserWarning,
+            )
 
     dims, coords = generate_dims_coords(
-        shape,
+        ary.shape[len(default_dims):],
         var_name,
         dims=dims,
         coords=coords,
