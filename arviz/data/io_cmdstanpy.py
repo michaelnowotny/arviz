@@ -238,11 +238,8 @@ class CmdStanPyConverter:
     @requires("observed_data")
     def observed_data_to_xarray(self):
         """Convert observed data to xarray."""
-        observed_data = {}
-        for key, vals in self.observed_data.items():
-            observed_data[key] = utils.one_de(vals)
         return dict_to_dataset(
-            observed_data,
+            self.observed_data,
             library=self.cmdstanpy,
             coords=self.coords,
             dims=self.dims,
@@ -253,11 +250,8 @@ class CmdStanPyConverter:
     @requires("constant_data")
     def constant_data_to_xarray(self):
         """Convert constant data to xarray."""
-        constant_data = {}
-        for key, vals in self.constant_data.items():
-            constant_data[key] = utils.one_de(vals)
         return dict_to_dataset(
-            constant_data,
+            self.constant_data,
             library=self.cmdstanpy,
             coords=self.coords,
             dims=self.dims,
@@ -268,11 +262,8 @@ class CmdStanPyConverter:
     @requires("predictions_constant_data")
     def predictions_constant_data_to_xarray(self):
         """Convert constant data to xarray."""
-        predictions_constant_data = {}
-        for key, vals in self.predictions_constant_data.items():
-            predictions_constant_data[key] = utils.one_de(vals)
         return dict_to_dataset(
-            predictions_constant_data,
+            self.predictions_constant_data,
             library=self.cmdstanpy,
             coords=self.coords,
             dims=self.dims,
