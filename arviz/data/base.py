@@ -155,7 +155,7 @@ def numpy_to_data_array(
         default_dims = ["chain", "draw"]
     if "chain" in default_dims and "draw" in default_dims:
         ary = utils.two_de(ary)
-        n_chains, n_samples, _ = ary.shape
+        n_chains, n_samples, *_ = ary.shape
         if n_chains > n_samples:
             warnings.warn(
                 "More chains ({n_chains}) than draws ({n_samples}). "
